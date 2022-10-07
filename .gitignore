@@ -1,0 +1,8 @@
+
+.direnv
+build
+node_modules
+.envrc
+package-lock.json
+shell.nix
+src/config.ts
