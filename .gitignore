@@ -6,3 +6,4 @@ node_modules
 package-lock.json
 shell.nix
 src/config.ts
+src/tally.json
