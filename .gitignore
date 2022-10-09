@@ -7,3 +7,5 @@ package-lock.json
 shell.nix
 src/config.ts
 src/tally.json
+src/config.json
+src/guilds.json

@@ -1,11 +1,11 @@
-// Import classes
+// Imports
 import fs from "fs";
 import path from "path";
-import { token } from "./config";
+import { token } from "./config.json";
 import { ExtendedClient } from "./classes/extendedClient";
 
 // Create a new client instance
-const client = new ExtendedClient();
+const client = new ExtendedClient(path.join(__dirname, "guilds.json"));
 
 // Command collection for command handler
 const commandsPath = path.join(__dirname, "commands");
@@ -14,7 +14,7 @@ for (const file of commandFiles) {
 	const filePath = path.join(commandsPath, file);
 	import(filePath).then(module => {
 		const command = module.command;
-		client.commands.set(command.data.name, command);
+		client.setCommand(command.getData().name, command);
 	});
 }
 
