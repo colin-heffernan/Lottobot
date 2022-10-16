@@ -5,7 +5,7 @@ import { ExtendedClient } from "../classes/extendedClient";
 import fs from "fs";
 
 // Construct a Command object for the pick-winner command
-export const command = new Command(new SlashCommandBuilder().setName("pick-winner").setDescription("Select a winner from everyone enrolled in the server."),
+export const command = new Command(new SlashCommandBuilder().setName("pick-winner").setDescription("ADMIN: Select a winner from everyone enrolled in the server."),
 	// Define the execute function
 	async (client: ExtendedClient, interaction: CommandInteraction) => {
 		// Get the data from the guilds file
@@ -13,7 +13,7 @@ export const command = new Command(new SlashCommandBuilder().setName("pick-winne
 			// On error, print to console and return
 			if (err) {
 				console.log(`Error reading file:\n\n${err}`);
-				return 2;
+				return 1;
 			}
 
 			// Parse the tally data
@@ -22,23 +22,26 @@ export const command = new Command(new SlashCommandBuilder().setName("pick-winne
 			// If the interaction wasn't sent in a guild, reply negatively and return
 			if (!interaction.guild) {
 				await interaction.reply({ content: "This command was not sent in a server!", ephemeral: true });
-				return 3;
+				return 2;
 			}
 
-			// Get the guild's ID
-			const interactionGuildID = interaction.guild.id;
+			// If the user doesn't have sufficient perms, reply negatively and return
+			if (!interaction.memberPermissions || !interaction.memberPermissions.has("Administrator")) {
+				await interaction.reply({ content: "You don't have permission to send this command!", ephemeral: true });
+				return 3;
+			}
 
 			// Get a list of guilds that the bot recognizes
 			const guildKeyArray = Object.keys(json.guilds);
 
 			// If the bot doesn't recognize the guild, reply negatively and return
-			if (!guildKeyArray.includes(interactionGuildID)) {
+			if (!guildKeyArray.includes(interaction.guild.id)) {
 				await interaction.reply({ content: "This server is not recognized!", ephemeral: true });
 				return 4;
 			}
 
 			// Get the dict of people in the guild
-			const peopleDict = await json.guilds[interactionGuildID].people;
+			const peopleDict = await json.guilds[interaction.guild.id].people;
 
 			// Get an array from the keys of the dict
 			const peopleKeyArray = Object.keys(peopleDict);
@@ -46,7 +49,7 @@ export const command = new Command(new SlashCommandBuilder().setName("pick-winne
 			// Build an array of enrolled people
 			const peopleArray: string[] = [];
 			for (let i = 0; i < peopleKeyArray.length; i++) {
-				if (peopleDict[peopleKeyArray[i]] == true) {
+				if (peopleDict[peopleKeyArray[i]].enrolled) {
 					peopleArray.push(peopleKeyArray[i]);
 				}
 			}
@@ -62,7 +65,7 @@ export const command = new Command(new SlashCommandBuilder().setName("pick-winne
 
 			// Try to find the channel to send the winner in
 			const interactionGuild = interaction.guild;
-			const announcementChannel = interactionGuild.channels.cache.get(json.guilds[interactionGuildID].channel);
+			const announcementChannel = interactionGuild.channels.cache.get(json.guilds[interaction.guild.id].channel);
 
 			// If the channel doesn't exist, reply negatively and return
 			if (!announcementChannel || (announcementChannel.type != 0 && announcementChannel.type != 5)) {
@@ -75,7 +78,7 @@ export const command = new Command(new SlashCommandBuilder().setName("pick-winne
 
 			// Reply positively and return
 			await interaction.reply({ content: "Command successful!", ephemeral: true });
-			return 1;
+			return 0;
 		});
 	},
 );
