@@ -1,0 +1,15 @@
+@document.meta
+	title: README
+	description: 
+	authors: Colin Heffernan
+	categories: 
+	created: 2022-10-15
+	updated: 2022-10-15
+	version: 0.0.15
+@end
+
+* Lottobot
+  A Discord bot for picking a random winner!
+  
+* License
+  Lottobot is licensed under the MIT License.
